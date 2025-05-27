@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { upload } from "../utils/multer";
 import uploadController from "../controllers/upload.controller";
 import validateJWT from "../middlewares/validateJWT";
+import multer from "multer";
+import { upload } from "../utils/multer";
 
 const uploadRouter = Router();
 

@@ -9,10 +9,12 @@ class UploadController {
         res.status(400).json({ message: "No file uploaded" });
       }
 
+      console.log("File received:", req.file);
       const result = await uploadService.uploadFile(req.file!);
 
       res.status(201).send(result);
     } catch (error) {
+      console.error("Error uploading file:", error);
       errorHandler(error, res);
     }
   }

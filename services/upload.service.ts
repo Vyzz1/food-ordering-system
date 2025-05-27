@@ -1,5 +1,4 @@
 import path from "path";
-import fs from "fs";
 import { v2 as cloudinary } from "cloudinary";
 
 class UploadService {
@@ -24,24 +23,13 @@ class UploadService {
     return allowedExtensions.includes(extension);
   }
 
-  private async cleanupTempFile(filePath: string): Promise<void> {
-    try {
-      if (fs.existsSync(filePath)) {
-        await fs.promises.unlink(filePath);
-      }
-    } catch (error) {
-      console.error("Error cleaning up temp file:", error);
-    }
-  }
-
   async uploadFile(file: Express.Multer.File) {
-    if (!file || file.size === 0) {
-      throw new Error("File is empty");
+    if (!file || !file.buffer || file.buffer.length === 0) {
+      throw new Error("File is empty or no buffer available");
     }
 
     const extension = path.extname(file.originalname).toLowerCase();
     if (!extension || !this.isImageFile(extension)) {
-      await this.cleanupTempFile(file.path);
       throw new Error("Invalid file type");
     }
 
@@ -58,21 +46,18 @@ class UploadService {
 
     for (const file of files) {
       try {
-        if (!file || file.size === 0) {
-          await this.cleanupTempFile(file.path);
+        if (!file || !file.buffer || file.buffer.length === 0) {
           continue;
         }
 
         const extension = path.extname(file.originalname).toLowerCase();
         if (!extension || !this.isImageFile(extension)) {
-          await this.cleanupTempFile(file.path);
           continue;
         }
 
         const response = await this.uploadSingleFileAsync(file);
         uploadResponses.push(response);
       } catch (error) {
-        await this.cleanupTempFile(file.path);
         failedUploads.push(file.originalname);
         console.error(`Failed to upload ${file.originalname}:`, error);
       }
@@ -86,15 +71,19 @@ class UploadService {
   }
 
   private async uploadSingleFileAsync(file: Express.Multer.File) {
+    console.log("Uploading file:", file.originalname);
     try {
-      const uploadResult = await cloudinary.uploader.upload(file.path, {
-        folder: process.env.CLOUDINARY_FOLDER || "uploads",
-        resource_type: "auto",
-        use_filename: true,
-        unique_filename: false,
-      });
-
-      await this.cleanupTempFile(file.path);
+      // Upload directly from buffer instead of file path
+      const uploadResult = await cloudinary.uploader.upload(
+        `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+        {
+          folder: process.env.CLOUDINARY_FOLDER || "uploads",
+          resource_type: "auto",
+          use_filename: true,
+          unique_filename: false,
+          public_id: path.parse(file.originalname).name, // Use original filename without extension
+        }
+      );
 
       return {
         fileName: uploadResult.public_id,
@@ -102,8 +91,8 @@ class UploadService {
         uploadedAt: new Date().toISOString(),
       };
     } catch (error) {
-      await this.cleanupTempFile(file.path);
-      throw new Error((error as Error).message || "Upload failed");
+      console.error("Cloudinary upload error:", error);
+      throw error;
     }
   }
 }
