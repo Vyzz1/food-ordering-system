@@ -17,6 +17,7 @@ import paymnetRoute from "./routes/payment.route";
 import dashboardRoute from "./routes/dashboard.route";
 import seedFoodData from "./services/seed.service";
 import { foodService } from "./services/food.service";
+import path from "path";
 
 dotenv.config();
 
@@ -54,6 +55,10 @@ app.use("/api/order", orderRoute);
 app.use("/api/review", ratingRoute);
 
 app.use("/api/dashboard", dashboardRoute);
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 const PORT = process.env.PORT || 6999;
 
