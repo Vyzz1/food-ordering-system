@@ -1,4 +1,5 @@
 import { db } from "../db";
+import redis from "../redis";
 import { CategoryTable } from "../schemas";
 import { eq } from "drizzle-orm";
 class CategoryService {
@@ -17,6 +18,8 @@ class CategoryService {
         .values(request)
         .returning();
 
+      await this.invalidateCache();
+
       return newCategory[0];
     } catch (error) {
       throw error;
@@ -25,13 +28,33 @@ class CategoryService {
 
   async getAllCategories() {
     try {
+      const cachedKey = "categories";
+
+      const cachedCategories = await redis.get(cachedKey);
+
+      if (cachedCategories) {
+        return cachedCategories;
+      }
       const categories = await db.query.CategoryTable.findMany({
         orderBy: (table, { desc }) => desc(table.name),
+      });
+
+      await redis.set(cachedKey, JSON.stringify(categories), {
+        ex: 60 * 60 * 24,
       });
 
       return categories;
     } catch (error) {
       throw error;
+    }
+  }
+
+  private async invalidateCache() {
+    try {
+      const cachedKey = "categories";
+      await redis.del(cachedKey);
+    } catch (error) {
+      console.error("Error invalidating cache:", error);
     }
   }
 
@@ -51,6 +74,8 @@ class CategoryService {
         .set(request)
         .where(eq(CategoryTable.id, id))
         .returning();
+
+      await this.invalidateCache();
 
       return updatedCategory[0];
     } catch (error) {
@@ -72,6 +97,8 @@ class CategoryService {
         .delete(CategoryTable)
         .where(eq(CategoryTable.id, id))
         .returning();
+
+      await this.invalidateCache();
 
       return deletedCategory[0];
     } catch (error) {

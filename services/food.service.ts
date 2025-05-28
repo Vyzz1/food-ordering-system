@@ -1,5 +1,6 @@
 import { db } from "../db";
 import { PagedResult } from "../models/paged-result";
+import redis from "../redis";
 import {
   CategoryTable,
   FoodTable,
@@ -126,6 +127,16 @@ class FoodService {
 
   async getFoodById(foodId: string) {
     try {
+      const cacheKey = `food:${foodId}`;
+
+      const cachedFood = await redis.get<string | null>(cacheKey);
+
+      if (cachedFood) {
+        console.log(`Cache hit for food ID: ${foodId}`);
+
+        return cachedFood;
+      }
+
       const food = await db.query.FoodTable.findFirst({
         where: (foodTable, { eq }) => eq(foodTable.id, foodId),
         with: {
@@ -147,10 +158,18 @@ class FoodService {
         throw new Error("Food item not found");
       }
 
+      await redis.set(cacheKey, JSON.stringify(food), { ex: 3600 });
+
       return food;
     } catch (error) {
+      console.error(`Error fetching food with ID ${foodId}:`, error);
       throw error;
     }
+  }
+
+  async invalidateFoodCache(foodId: string): Promise<void> {
+    const cacheKey = `food:${foodId}`;
+    await redis.del(cacheKey);
   }
 
   async deleteFood(foodId: string) {
@@ -161,6 +180,8 @@ class FoodService {
     if (!food) {
       throw new Error("Food item not found");
     }
+
+    await this.invalidateFoodCache(foodId);
 
     await db.delete(FoodTable).where(eq(FoodTable.id, foodId));
 
@@ -311,6 +332,8 @@ class FoodService {
         await this.updateOptions(optionGroupId, optionGroupRequest.options);
       }
     }
+
+    await this.invalidateFoodCache(menuItemId);
   }
 
   private async updateOptions(

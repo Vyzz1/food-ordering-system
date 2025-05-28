@@ -2,6 +2,7 @@ import { Response } from "express";
 import { AuthenticatedRequest, AuthenticatedTypedRequest } from "../types/auth";
 import { addressService } from "../services/address.service";
 import errorHandler from "../utils/error";
+import { MyTypedRequest } from "../types/express";
 
 class AddressController {
   async createAddress(
@@ -62,7 +63,10 @@ class AddressController {
     }
   }
 
-  async deleteAddress(req: AuthenticatedTypedRequest<{}>, res: Response) {
+  async deleteAddress(
+    req: MyTypedRequest<{ TParams: { id: string } }>,
+    res: Response
+  ) {
     try {
       const id = req.params.id;
 

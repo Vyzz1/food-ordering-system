@@ -13,6 +13,7 @@ import corsHandler from "./config/corsHandler";
 import cartRouter from "./routes/cart.route";
 import orderRoute from "./routes/order.route";
 import ratingRoute from "./routes/rating.route";
+import paymnetRoute from "./routes/payment.route";
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.use("/api/order", orderRoute);
 
 app.use("/api/review", ratingRoute);
 
+app.use("/api/payment", paymnetRoute);
 const PORT = process.env.PORT || 6999;
 
 app.listen(PORT, async () => {

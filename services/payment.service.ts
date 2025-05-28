@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { db } from "../db";
-import { OrderSelect, PaymentTable } from "../schemas";
+import { OrderTable, PaymentTable } from "../schemas";
+import { eq } from "drizzle-orm";
 
 class PaymentService {
   private stripe: Stripe;
@@ -116,6 +117,81 @@ class PaymentService {
       .join(", ");
 
     return `Options: ${options}`;
+  }
+
+  async handleRepay(orderId: string) {
+    try {
+      const order = await db.query.OrderTable.findFirst({
+        where: (table, { eq }) => eq(table.id, orderId),
+        with: {
+          user: true,
+          items: {
+            with: {
+              orderItemOptions: true,
+            },
+          },
+        },
+      });
+
+      if (!order) {
+        throw new Error("Order not found");
+      }
+
+      const email = order.user.email;
+
+      if (order.payStatus === "Success") {
+        throw new Error("Order already paid");
+      }
+
+      return await this.createPayment(order, email);
+    } catch (error) {
+      throw error;
+    }
+  }
+  async handleWebhook(rawBody: string, signature: string) {
+    const event = this.stripe.webhooks.constructEvent(
+      rawBody,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET as string
+    );
+
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+
+      const payment = await db
+        .update(PaymentTable)
+        .set({ status: "Success" })
+        .where(eq(PaymentTable.transactionId, session.id))
+        .returning();
+
+      if (payment.length === 0) {
+        throw new Error("Payment not found");
+      }
+      if (!session.client_reference_id) {
+        throw new Error("Missing client_reference_id in session");
+      }
+      const orderId = session.client_reference_id;
+
+      const order = await db
+        .update(OrderTable)
+        .set({ payStatus: "Success" })
+        .where(eq(OrderTable.id, orderId!))
+        .returning();
+
+      if (order.length === 0) {
+        throw new Error("Order not found");
+      }
+
+      return {
+        success: true,
+        message: "Payment successful",
+      };
+    }
+
+    return {
+      success: false,
+      message: "Unhandled event type",
+    };
   }
 }
 
