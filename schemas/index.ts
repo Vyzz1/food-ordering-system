@@ -25,7 +25,7 @@ export const UserTable = pgTable(
     gender: text("gender").notNull(),
     role: UserRole("role").default("customer"),
     photoUrl: text("photoUrl").default(""),
-    createdAt: date("createdAt").defaultNow(),
+    createdAt: timestamp("createdAt").defaultNow(),
     password: text("password").notNull(),
     emailVerified: boolean("emailVerified").default(false),
     lockoutEnd: boolean("lockoutEnd").default(false),
@@ -395,6 +395,15 @@ export const PaymentTable = pgTable("payments", {
   status: payStatusEnum("status").default("Failed").notNull(),
   paidAt: timestamp("paid_at").notNull().defaultNow(),
   transactionId: varchar("transaction_id").notNull().default(""),
+});
+
+export const PaymentRelation = relations(PaymentTable, ({ one }) => {
+  return {
+    user: one(UserTable, {
+      fields: [PaymentTable.userId],
+      references: [UserTable.id],
+    }),
+  };
 });
 
 export const RevenueSummaryTable = pgTable("revenue_summaries", {

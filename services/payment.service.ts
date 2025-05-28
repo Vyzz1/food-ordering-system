@@ -1,7 +1,19 @@
 import Stripe from "stripe";
 import { db } from "../db";
-import { OrderTable, PaymentTable } from "../schemas";
-import { eq } from "drizzle-orm";
+import { OrderTable, PaymentTable, UserTable } from "../schemas";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  gte,
+  inArray,
+  like,
+  lte,
+  or,
+} from "drizzle-orm";
+import { PagedResult } from "../models/paged-result";
 
 class PaymentService {
   private stripe: Stripe;
@@ -120,6 +132,7 @@ class PaymentService {
   }
 
   async handleRepay(orderId: string) {
+    console.log("Handling repayment for order ID:", orderId);
     try {
       const order = await db.query.OrderTable.findFirst({
         where: (table, { eq }) => eq(table.id, orderId),
@@ -158,6 +171,10 @@ class PaymentService {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
 
+      if (!session.id) {
+        throw new Error("Missing session ID in event data");
+      }
+
       const payment = await db
         .update(PaymentTable)
         .set({ status: "Success" })
@@ -192,6 +209,147 @@ class PaymentService {
       success: false,
       message: "Unhandled event type",
     };
+  }
+  async getAllPayments(
+    query: PaymentFilterRequest,
+    isAdmin: boolean,
+    userId?: string
+  ) {
+    try {
+      const whereConditions = [];
+
+      if (!isAdmin) {
+        whereConditions.push(eq(PaymentTable.userId, userId!));
+      }
+
+      // if (isAdmin) {
+      //   if (query.keyword && query.keyword.trim() !== "") {
+      //     whereConditions.push(
+      //       or(
+      //         like(PaymentTable.userId, `%${query.keyword}%`),
+      //         like(PaymentTable.amount, `%${query.keyword}%`)
+      //       )
+      //     );
+      //   }
+      // }
+
+      if (!!query.methods?.length) {
+        if (typeof query.methods === "string") {
+          query.methods = [query.methods];
+        }
+
+        whereConditions.push(
+          inArray(PaymentTable.paymentMethod, query.methods as PaymentMethod[])
+        );
+      }
+
+      if (!!query.statuses?.length) {
+        if (typeof query.statuses === "string") {
+          query.statuses = [query.statuses];
+        }
+
+        whereConditions.push(
+          inArray(PaymentTable.status, query.statuses as PaymentStatus[])
+        );
+      }
+
+      if (query.fromDate && query.toDate) {
+        const fromDate = new Date(query.fromDate);
+        fromDate.setHours(0, 0, 0, 0);
+
+        const toDate = new Date(query.toDate);
+        toDate.setHours(23, 59, 59, 999);
+
+        whereConditions.push(
+          and(
+            gte(PaymentTable.paidAt, fromDate),
+            lte(PaymentTable.paidAt, toDate)
+          )
+        );
+      } else {
+        const last60Days = new Date();
+        last60Days.setDate(last60Days.getDate() - 60);
+        last60Days.setHours(0, 0, 0, 0);
+
+        whereConditions.push(gte(PaymentTable.paidAt, last60Days));
+      }
+
+      let orderByClause = asc(PaymentTable.paidAt);
+
+      if (query.sort) {
+        switch (query.sort) {
+          case "amount_asc":
+            orderByClause = asc(PaymentTable.amount);
+            break;
+          case "amount_desc":
+            orderByClause = desc(PaymentTable.amount);
+            break;
+
+          case "paid_asc":
+            orderByClause = asc(PaymentTable.paidAt);
+            break;
+          case "paid_desc":
+            orderByClause = desc(PaymentTable.paidAt);
+            break;
+          default:
+            orderByClause = asc(PaymentTable.paidAt);
+            break;
+        }
+      }
+
+      const page = query.page || 0;
+      const limit = query.limit || 10;
+      const offset = page * limit;
+
+      const payments = db.query.PaymentTable.findMany({
+        where: whereConditions.length > 0 ? and(...whereConditions) : undefined,
+        with: {
+          user: isAdmin
+            ? {
+                columns: {
+                  password: false,
+                },
+              }
+            : undefined,
+        },
+        orderBy: [orderByClause],
+        limit,
+        offset,
+      });
+      const [results, totalCountResult] = await Promise.all([
+        payments,
+        db
+          .select({ count: count() })
+          .from(PaymentTable)
+          .where(
+            whereConditions.length > 0 ? and(...whereConditions) : undefined
+          ),
+      ]);
+
+      const totalCount = totalCountResult[0]?.count || 0;
+
+      return new PagedResult(results, totalCount, page, limit).response;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async deletePayment(paymentId: string) {
+    try {
+      const payment = await db.query.PaymentTable.findFirst({
+        where: (table, { eq }) => eq(table.id, paymentId),
+      });
+
+      if (!payment) {
+        throw new Error("Payment not found");
+      }
+
+      await db.delete(PaymentTable).where(eq(PaymentTable.id, paymentId));
+
+      return { message: "Payment deleted successfully" };
+    } catch (error) {
+      throw error;
+    }
   }
 }
 

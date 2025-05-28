@@ -19,6 +19,7 @@ import {
   OrderItemTable,
   OrderStatusHistoryTable,
   OrderTable,
+  UserTable,
 } from "../schemas";
 import { PagedResult } from "../models/paged-result";
 import revenueService from "./revenue.service";
@@ -457,6 +458,73 @@ class OrderService {
       return new PagedResult(results, totalCount, page, limit).response;
     } catch (error) {
       console.error("Error getting all orders:", error);
+      throw error;
+    }
+  }
+  getUserOrdersForAdmin(userId: string) {
+    try {
+      const user = db.query.UserTable.findFirst({
+        where: eq(UserTable.id, userId),
+      });
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      const orders = db.query.OrderTable.findMany({
+        where: eq(OrderTable.userId, userId),
+        orderBy: desc(OrderTable.orderDate),
+        with: {
+          items: {
+            with: {
+              orderItemOptions: true,
+            },
+          },
+        },
+      });
+
+      return orders;
+    } catch (error) {
+      throw error;
+    }
+  }
+  async getOrdersByFoodId(foodId: string) {
+    try {
+      const food = await db.query.FoodTable.findFirst({
+        where: eq(FoodTable.id, foodId),
+      });
+
+      if (!food) {
+        throw new Error("Food not found");
+      }
+
+      const matchingOrderItems = await db.query.OrderItemTable.findMany({
+        where: eq(OrderItemTable.menuItemId, foodId),
+        columns: { orderId: true },
+      });
+
+      const orderIds = [
+        ...new Set(matchingOrderItems.map((item) => item.orderId)),
+      ];
+
+      if (orderIds.length === 0) {
+        return [];
+      }
+
+      const orders = await db.query.OrderTable.findMany({
+        where: inArray(OrderTable.id, orderIds),
+        with: {
+          items: {
+            with: {
+              orderItemOptions: true,
+            },
+          },
+        },
+      });
+
+      return orders;
+    } catch (error) {
+      console.error("Error getting orders by food ID:", error);
       throw error;
     }
   }

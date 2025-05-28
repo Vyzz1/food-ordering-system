@@ -12,7 +12,7 @@ import {
   or,
 } from "drizzle-orm";
 import { db } from "../db";
-import { UserTable } from "../schemas";
+import { OrderTable, UserTable } from "../schemas";
 import bcrypt from "bcrypt";
 import { PagedResult } from "../models/paged-result";
 class UserService {

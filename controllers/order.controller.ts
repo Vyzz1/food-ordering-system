@@ -2,10 +2,24 @@ import { Response } from "express";
 import { AuthenticatedTypedRequest } from "../types/auth";
 import errorHandler from "../utils/error";
 import orderService from "../services/order.service";
-import { TypedRequestParams } from "../types/express";
 import paymentService from "../services/payment.service";
+import { TypedRequest } from "../types/express";
 
 class OrderController {
+  async getOrdersByFoodId(
+    req: TypedRequest<{ TParams: { foodId: string } }>,
+    res: Response
+  ) {
+    try {
+      const foodId = req.params.foodId;
+      const response = await orderService.getOrdersByFoodId(foodId);
+
+      res.status(200).send(response);
+    } catch (error) {
+      console.error("Error fetching orders by food ID:", error);
+      errorHandler(error, res);
+    }
+  }
   async createOrder(
     req: AuthenticatedTypedRequest<OrderRequest>,
     res: Response
@@ -32,7 +46,10 @@ class OrderController {
     }
   }
 
-  async getOrderById(req: TypedRequestParams<{ id: string }>, res: Response) {
+  async getOrderById(
+    req: TypedRequest<{ TParams: { id: string } }>,
+    res: Response
+  ) {
     try {
       const response = await orderService.getOrderById(req.params.id);
 
@@ -92,6 +109,21 @@ class OrderController {
       res.send(response);
     } catch (error) {
       console.error("Error updating order status:", error);
+      errorHandler(error, res);
+    }
+  }
+
+  async getUserOrdersForAdmin(
+    req: TypedRequest<{ TParams: { userId: string } }>,
+    res: Response
+  ) {
+    try {
+      const userId = req.params.userId;
+      const response = await orderService.getUserOrdersForAdmin(userId);
+
+      res.status(200).send(response);
+    } catch (error) {
+      console.error("Error fetching user orders for admin:", error);
       errorHandler(error, res);
     }
   }

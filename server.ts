@@ -14,6 +14,7 @@ import cartRouter from "./routes/cart.route";
 import orderRoute from "./routes/order.route";
 import ratingRoute from "./routes/rating.route";
 import paymnetRoute from "./routes/payment.route";
+import dashboardRoute from "./routes/dashboard.route";
 
 dotenv.config();
 
@@ -25,9 +26,7 @@ app.use(cookieParser());
 app.use(helmet());
 app.use(
   "/api/payment",
-  express.raw({
-    type: "application/json",
-  }),
+
   paymnetRoute
 );
 
@@ -51,6 +50,8 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRoute);
 
 app.use("/api/review", ratingRoute);
+
+app.use("/api/dashboard", dashboardRoute);
 
 const PORT = process.env.PORT || 6999;
 

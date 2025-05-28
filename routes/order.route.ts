@@ -22,6 +22,18 @@ orderRoute.get(
   orderController.getUserOrder
 );
 
+orderRoute.get(
+  "/user/:userId",
+  validateRole("admin"),
+  orderController.getUserOrdersForAdmin
+);
+
+orderRoute.get(
+  "/food/:foodId",
+  validateRole("admin"),
+  orderController.getOrdersByFoodId
+);
+
 orderRoute.patch(
   "/:id",
   validateRole("admin"),

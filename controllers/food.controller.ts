@@ -1,15 +1,14 @@
 import { Request, Response } from "express";
-import {
-  TypedRequestBody,
-  TypedRequestFull,
-  TypedRequestParams,
-  TypedRequestQuery,
-} from "../types/express";
+
 import errorHandler from "../utils/error";
 import { foodService } from "../services/food.service";
+import { TypedRequest } from "../types/express";
 
 class FoodController {
-  async createFood(req: TypedRequestBody<FoodItemRequest>, res: Response) {
+  async createFood(
+    req: TypedRequest<{ TBody: FoodItemRequest }>,
+    res: Response
+  ) {
     try {
       const foodResponse = await foodService.createFood(req.body);
 
@@ -21,7 +20,10 @@ class FoodController {
       errorHandler(error, res);
     }
   }
-  async deleteFood(req: TypedRequestParams<{ foodId: string }>, res: Response) {
+  async deleteFood(
+    req: TypedRequest<{ TParams: { foodId: string } }>,
+    res: Response
+  ) {
     try {
       const { foodId } = req.params;
 
@@ -32,7 +34,10 @@ class FoodController {
     }
   }
 
-  async updateMenuItem(req: TypedRequestBody<FoodItemRequest>, res: Response) {
+  async updateMenuItem(
+    req: TypedRequest<{ TBody: FoodItemRequest; TParams: { foodId: string } }>,
+    res: Response
+  ) {
     try {
       const { foodId } = req.params;
       const updatedMenuItem = await foodService.updateMenuItem(
@@ -45,7 +50,10 @@ class FoodController {
     }
   }
   async updateStatus(
-    req: TypedRequestFull<{ isActive: boolean }, { foodId: string }>,
+    req: TypedRequest<{
+      TBody: { isActive: boolean };
+      TParams: { foodId: string };
+    }>,
     res: Response
   ) {
     try {
@@ -71,7 +79,7 @@ class FoodController {
   }
 
   async getFoodById(
-    req: TypedRequestParams<{ foodId: string }>,
+    req: TypedRequest<{ TParams: { foodId: string } }>,
     res: Response
   ) {
     try {
@@ -84,7 +92,7 @@ class FoodController {
   }
 
   async getFoodByFilter(
-    req: TypedRequestQuery<AdminFilterRequest>,
+    req: TypedRequest<{ TQuery: AdminFilterRequest }>,
     res: Response
   ) {
     try {

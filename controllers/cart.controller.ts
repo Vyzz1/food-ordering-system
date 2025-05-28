@@ -1,8 +1,8 @@
 import { Response } from "express";
-import { TypedRequestBody, TypedRequestParams } from "../types/express";
 import shoppingCartService from "../services/shoppingCart.service";
 import { AuthenticatedRequest, AuthenticatedTypedRequest } from "../types/auth";
 import errorHandler from "../utils/error";
+import { TypedRequest } from "../types/express";
 
 class ShoppingCartController {
   async addToCart(
@@ -33,7 +33,10 @@ class ShoppingCartController {
     }
   }
 
-  async removeFromCart(req: TypedRequestParams<{ id: string }>, res: Response) {
+  async removeFromCart(
+    req: TypedRequest<{ TParams: { id: string } }>,
+    res: Response
+  ) {
     try {
       const { id } = req.params;
 
@@ -46,7 +49,7 @@ class ShoppingCartController {
   }
 
   async updateCartItem(
-    req: TypedRequestBody<{ quantity: number }>,
+    req: TypedRequest<{ TBody: { quantity: number }; TParams: { id: string } }>,
     res: Response
   ) {
     try {

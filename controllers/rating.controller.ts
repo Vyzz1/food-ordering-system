@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { AuthenticatedRequest, AuthenticatedTypedRequest } from "../types/auth";
-import { TypedRequestBody, TypedRequestQuery } from "../types/express";
 import errorHandler from "../utils/error";
 import ratingService from "../services/rating.service";
+import { TypedRequest } from "../types/express";
 
 class RatingController {
   async createRating(
@@ -34,7 +34,13 @@ class RatingController {
     }
   }
 
-  async getRatings(req: TypedRequestQuery<FilterRatingRequest>, res: Response) {
+  async getRatings(
+    req: TypedRequest<{
+      TQuery: FilterRatingRequest;
+      TParams: { foodId: string };
+    }>,
+    res: Response
+  ) {
     try {
       const { foodId } = req.params;
 

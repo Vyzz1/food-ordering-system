@@ -182,3 +182,16 @@ interface DashboardRequest {
   fromDate?: Date;
   toDate?: Date;
 }
+
+interface PaymentFilterRequest {
+  methods?: string[];
+  statuses?: string[];
+  page?: number;
+  limit?: number;
+  keyword?: string;
+  sort?: string;
+  fromDate?: Date;
+  toDate?: Date;
+}
+
+type PaymentStatus = "Failed" | "Success";

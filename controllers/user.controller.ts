@@ -2,7 +2,7 @@ import { Response } from "express";
 import userService from "../services/user.service";
 import { AuthenticatedRequest, AuthenticatedTypedRequest } from "../types/auth";
 import errorHandler from "../utils/error";
-import { TypedRequestParams } from "../types/express";
+import { TypedRequest } from "../types/express";
 
 class UserController {
   async changePassword(
@@ -73,7 +73,10 @@ class UserController {
     }
   }
 
-  async handleBanUser(req: TypedRequestParams<{ id: string }>, res: Response) {
+  async handleBanUser(
+    req: TypedRequest<{ TParams: { id: string } }>,
+    res: Response
+  ) {
     try {
       const userId = req.params.id;
       const response = await userService.banUser(userId);
@@ -86,7 +89,7 @@ class UserController {
   }
 
   async handleUnBanUser(
-    req: TypedRequestParams<{ id: string }>,
+    req: TypedRequest<{ TParams: { id: string } }>,
     res: Response
   ) {
     try {
@@ -100,7 +103,10 @@ class UserController {
     }
   }
 
-  async deleteUser(req: TypedRequestParams<{ id: string }>, res: Response) {
+  async deleteUser(
+    req: TypedRequest<{ TParams: { id: string } }>,
+    res: Response
+  ) {
     try {
       const userId = req.params.id;
       await userService.deleteUser(userId);
@@ -111,6 +117,21 @@ class UserController {
       errorHandler(error, res);
     }
   }
+
+  // async getUserOrdersForAdmin(
+  //   req:TypedRequest<{ TParams: { userId: string } }>,
+  //   res: Response
+  // ){
+  //   try {
+  //     const userId = req.params.userId;
+  //     const response = await userService.getUserOrdersForAdmin(userId);
+
+  //     res.status(200).send(response);
+  //   } catch (error) {
+  //     console.error("Error fetching user orders for admin:", error);
+  //     errorHandler(error, res);
+  //   }
+  // }
 }
 
 export default new UserController();

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { categoryService } from "../services/category.service";
 import errorHandler from "../utils/error";
-import { TypedRequestBody } from "../types/express";
+import { TypedRequest } from "../types/express";
 
 class CategoryController {
   async getAllCategories(req: Request, res: Response) {
@@ -13,7 +13,10 @@ class CategoryController {
     }
   }
 
-  async createCategory(req: TypedRequestBody<CategoryRequest>, res: Response) {
+  async createCategory(
+    req: TypedRequest<{ TBody: CategoryRequest }>,
+    res: Response
+  ) {
     try {
       const newCategory = await categoryService.addCategory(req.body);
       res.status(201).json(newCategory);
@@ -33,7 +36,10 @@ class CategoryController {
     }
   }
 
-  async updateCategory(req: TypedRequestBody<CategoryRequest>, res: Response) {
+  async updateCategory(
+    req: TypedRequest<{ TBody: CategoryRequest; TParams: { id: string } }>,
+    res: Response
+  ) {
     try {
       const { id } = req.params;
       const updatedCategory = await categoryService.updateCategory(

@@ -1,10 +1,13 @@
 import { Response } from "express";
-import { TypedRequestBody } from "../types/express";
 import errorHandler from "../utils/error";
 import passwordService from "../services/password.service";
+import { TypedRequest } from "../types/express";
 
 class PasswordController {
-  async sendOTP(req: TypedRequestBody<ForgotPasswordRequest>, res: Response) {
+  async sendOTP(
+    req: TypedRequest<{ TBody: ForgotPasswordRequest }>,
+    res: Response
+  ) {
     try {
       const response = await passwordService.handleSendOTP(req.body.email);
 
@@ -15,7 +18,7 @@ class PasswordController {
   }
 
   async validateOTP(
-    req: TypedRequestBody<ForgotPasswordRequest>,
+    req: TypedRequest<{ TBody: ForgotPasswordRequest }>,
     res: Response
   ) {
     try {
@@ -30,7 +33,7 @@ class PasswordController {
   }
 
   async resetPassword(
-    req: TypedRequestBody<ForgotPasswordRequest>,
+    req: TypedRequest<{ TBody: ForgotPasswordRequest }>,
     res: Response
   ) {
     try {

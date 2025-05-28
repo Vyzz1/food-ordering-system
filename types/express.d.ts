@@ -1,35 +1,16 @@
 import { Request } from "express";
-
-export interface TypedRequest<T = object> extends Request {
-  body: T;
-}
-
-export interface TypedRequestBody<T> extends Request {
-  body: T;
-}
-
-export interface TypedRequestParams<T> extends Request {
-  params: T;
-}
-
-export interface TypedRequestQuery<T> extends Request {
-  query: T;
-}
-
-export interface TypedRequestFull<
-  TBody = object,
-  TParams = object,
-  TQuery = object,
-> extends Request {
-  body: TBody;
-  params: TParams;
-  query: TQuery;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthenticatedUser;
+    }
+  }
 }
 
 interface RequestTypes {
-  TBody?: any; // Optional, default là any
-  TQuery?: any; // Optional, default là any
-  TParams?: any; // Optional, default là any
+  TBody?: any;
+  TQuery?: any;
+  TParams?: any;
 }
 
 type ExtractBody<T extends RequestTypes> = T["TBody"] extends undefined
@@ -44,9 +25,9 @@ type ExtractParams<T extends RequestTypes> = T["TParams"] extends undefined
   ? any
   : T["TParams"];
 
-type MyTypedRequest<T extends RequestTypes = {}> = Request<
-  ExtractParams<T>, // Params (thứ 1 trong Express Request generic)
-  any, // Response body (thứ 2 - không quan tâm)
-  ExtractBody<T>, // Request body (thứ 3)
-  ExtractQuery<T> // Query (thứ 4)
+export type TypedRequest<T extends RequestTypes = {}> = Request<
+  ExtractParams<T>,
+  any,
+  ExtractBody<T>,
+  ExtractQuery<T>
 >;

@@ -1,10 +1,13 @@
 import { Request, Response } from "express";
-import { TypedRequest } from "../types/express";
 import authService from "../services/auth.service";
 import errorHandler from "../utils/error";
+import { TypedRequest } from "../types/express";
 
 class AuthController {
-  async register(req: TypedRequest<CreateUserRequest>, res: Response) {
+  async register(
+    req: TypedRequest<{ TBody: CreateUserRequest }>,
+    res: Response
+  ) {
     try {
       const response = await authService.register(req.body);
 
@@ -14,7 +17,7 @@ class AuthController {
     }
   }
 
-  async login(req: TypedRequest<LoginRequest>, res: Response) {
+  async login(req: TypedRequest<{ TBody: LoginRequest }>, res: Response) {
     try {
       const response = await authService.login(
         req.body.email,

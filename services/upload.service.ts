@@ -73,7 +73,6 @@ class UploadService {
   private async uploadSingleFileAsync(file: Express.Multer.File) {
     console.log("Uploading file:", file.originalname);
     try {
-      // Upload directly from buffer instead of file path
       const uploadResult = await cloudinary.uploader.upload(
         `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
         {
@@ -81,7 +80,7 @@ class UploadService {
           resource_type: "auto",
           use_filename: true,
           unique_filename: false,
-          public_id: path.parse(file.originalname).name, // Use original filename without extension
+          public_id: path.parse(file.originalname).name,
         }
       );
 
