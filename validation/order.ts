@@ -30,7 +30,7 @@ export const updateOrderStatusSchema = Joi.object({
 export const userOrderFilterSchema = Joi.object<UserOrderFilterRequest>({
   page: Joi.number().integer().min(0).default(1),
   limit: Joi.number().integer().min(1).max(100).default(3),
-  status: Joi.string().valid("All", orderStatusEnum).optional(),
+  status: Joi.string().optional(),
   sort: Joi.string().optional(),
   keyword: Joi.string().trim().max(100).optional().allow(""),
 });

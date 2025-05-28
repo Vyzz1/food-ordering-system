@@ -31,9 +31,22 @@ foodRoute.patch(
   validateRole("admin"),
   foodController.updateStatus
 );
-foodRoute.patch("/:foodId", foodController.updateMenuItem);
+
+foodRoute.patch(
+  "/images/:foodId",
+  validateJWT,
+  validateRole("admin"),
+  foodController.updateFoodImage
+);
+
+foodRoute.patch(
+  "/:foodId",
+  validateJWT,
+  validateRole("admin"),
+  foodController.updateMenuItem
+);
 foodRoute.get("/:foodId", foodController.getFoodById);
 
-foodRoute.delete("/:foodId", foodController.deleteFood);
+foodRoute.delete("/:foodId", validateRole("admin"), foodController.deleteFood);
 
 export default foodRoute;

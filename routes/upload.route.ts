@@ -19,4 +19,6 @@ uploadRouter.post(
   uploadController.uploadMultipleFiles
 );
 
+uploadRouter.post("/from-url", uploadController.uploadFileFromUrl);
+
 export default uploadRouter;

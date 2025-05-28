@@ -1,5 +1,6 @@
 import path from "path";
 import { v2 as cloudinary } from "cloudinary";
+import axios from "axios";
 
 class UploadService {
   constructor() {
@@ -92,6 +93,48 @@ class UploadService {
     } catch (error) {
       console.error("Cloudinary upload error:", error);
       throw error;
+    }
+  }
+  async uploadFromUrl(
+    imageUrl: string,
+    fileName?: string
+  ): Promise<{
+    fileName: string;
+    publicUrl: string;
+    uploadedAt: string;
+  }> {
+    if (!imageUrl) {
+      throw new Error("No image URL provided");
+    }
+
+    try {
+      const response = await axios.get(imageUrl, {
+        responseType: "arraybuffer",
+      });
+
+      const contentType = response.headers["content-type"];
+
+      const customFileName = fileName || `url-image-${Date.now()}`;
+
+      const uploadResult = await cloudinary.uploader.upload(
+        `data:${contentType};base64,${Buffer.from(response.data).toString("base64")}`,
+        {
+          folder: process.env.CLOUDINARY_FOLDER || "uploads",
+          resource_type: "auto",
+          use_filename: true,
+          unique_filename: true,
+          public_id: customFileName,
+        }
+      );
+
+      return {
+        fileName: uploadResult.public_id,
+        publicUrl: uploadResult.secure_url,
+        uploadedAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error("Error uploading image from URL:", error);
+      throw new Error(`Failed to upload image from URL: ${error}`);
     }
   }
 }

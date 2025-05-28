@@ -19,6 +19,7 @@ ratingRoute.get(
 
 ratingRoute.post(
   "/",
+  validateJWT,
   validateSchema(ratingRequestSchema),
   ratingController.createRating
 );

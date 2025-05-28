@@ -15,6 +15,8 @@ import orderRoute from "./routes/order.route";
 import ratingRoute from "./routes/rating.route";
 import paymnetRoute from "./routes/payment.route";
 import dashboardRoute from "./routes/dashboard.route";
+import seedFoodData from "./services/seed.service";
+import { foodService } from "./services/food.service";
 
 dotenv.config();
 

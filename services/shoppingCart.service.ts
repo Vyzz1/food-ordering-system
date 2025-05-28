@@ -132,6 +132,9 @@ class ShoppingCartService {
               },
             },
           },
+          orderBy({ createdAt }, { desc }) {
+            return desc(createdAt);
+          },
         },
       },
     });

@@ -4,10 +4,7 @@ export const ratingRequestSchema = Joi.object<RatingRequest>({
   orderItemId: Joi.string().uuid().required(),
   rating: Joi.number().integer().min(1).max(5).required(),
   content: Joi.string().trim().max(500).min(10).required(),
-  images: Joi.array()
-    .items(Joi.string().uri().max(500).required())
-    .optional()
-    .default([]),
+  images: Joi.array().items(Joi.string()).min(0).optional().allow(null),
   menuItemId: Joi.string().uuid().required(),
 });
 

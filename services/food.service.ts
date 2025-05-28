@@ -19,12 +19,13 @@ import {
   lte,
   or,
 } from "drizzle-orm";
+import uploadService from "./upload.service";
 class FoodService {
   async getHomePageFood() {
     const bestSellings = await db.query.FoodTable.findMany({
       where: eq(FoodTable.isActive, true),
       orderBy: desc(FoodTable.soldCount),
-      limit: 10,
+      limit: 6,
       with: {
         category: true,
       },
@@ -33,7 +34,7 @@ class FoodService {
     const mostRated = await db.query.FoodTable.findMany({
       where: eq(FoodTable.isActive, true),
       orderBy: desc(FoodTable.averageRating),
-      limit: 10,
+      limit: 6,
       with: {
         category: true,
       },
@@ -481,7 +482,7 @@ class FoodService {
     }
 
     const page = request.page ?? 0;
-    const limit = request.limit ?? 10;
+    const limit = request.limit ?? 6;
     const offset = limit * page;
 
     try {
@@ -571,6 +572,8 @@ class FoodService {
           totalRating: updatedTotalRating,
         })
         .where(eq(FoodTable.id, foodId));
+
+      await this.invalidateFoodCache(foodId);
     } catch (error) {
       throw error;
     }
@@ -592,7 +595,45 @@ class FoodService {
         .update(FoodTable)
         .set({ soldCount: updatedSoldCount })
         .where(eq(FoodTable.id, foodId));
+
+      await this.invalidateFoodCache(foodId);
     } catch (error) {
+      throw error;
+    }
+  }
+
+  async uploadImage(foodId: string, imageUrl: string[]) {
+    try {
+      const food = await db.query.FoodTable.findFirst({
+        where: eq(FoodTable.id, foodId),
+      });
+
+      if (!food) {
+        throw new Error("Food item not found");
+      }
+
+      const newImages = [];
+
+      for (const url of imageUrl) {
+        const response = await uploadService.uploadFromUrl(url);
+        newImages.push(response.publicUrl);
+      }
+
+      const updatedImages = [...(food.images || []), ...newImages];
+
+      await db
+        .update(FoodTable)
+        .set({ images: updatedImages })
+        .where(eq(FoodTable.id, foodId));
+
+      await this.invalidateFoodCache(foodId);
+
+      return {
+        message: "Image uploaded successfully",
+        images: updatedImages,
+      };
+    } catch (error) {
+      console.error("Error uploading image:", error);
       throw error;
     }
   }

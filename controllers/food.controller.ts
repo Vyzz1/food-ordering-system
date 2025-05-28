@@ -103,6 +103,25 @@ class FoodController {
       errorHandler(error, res);
     }
   }
+
+  async updateFoodImage(
+    req: TypedRequest<{
+      TBody: { images: string[] };
+      TParams: { foodId: string };
+    }>,
+    res: Response
+  ) {
+    try {
+      const updatedFood = await foodService.uploadImage(
+        req.params.foodId,
+        req.body.images
+      );
+      res.status(200).json(updatedFood);
+    } catch (error) {
+      console.error("Error in updateFoodImage:", error);
+      errorHandler(error, res);
+    }
+  }
 }
 
 export const foodController = new FoodController();

@@ -141,7 +141,7 @@ interface AdminOrderFilterRequest extends UserOrderFilterRequest {
   paymentMethod?: string;
   fromDate?: Date;
   toDate?: Date;
-  orderStatuses?: OrderStatus[];
+  currentStatus?: OrderStatus[];
 }
 
 type OrderStatus =

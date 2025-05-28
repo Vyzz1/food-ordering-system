@@ -360,11 +360,14 @@ class OrderService {
         );
       }
 
-      if (!!request.orderStatuses?.length) {
+      if (!!request.currentStatus?.length) {
+        if (typeof request.currentStatus === "string") {
+          request.currentStatus = [request.currentStatus];
+        }
         whereConditions.push(
           inArray(
             OrderTable.currentStatus,
-            request.orderStatuses as OrderStatus[]
+            request.currentStatus as OrderStatus[]
           )
         );
       }
