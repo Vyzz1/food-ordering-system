@@ -20,11 +20,18 @@ dotenv.config();
 const app = express();
 app.use(corsHandler);
 
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(helmet());
+app.use(
+  "/api/payment",
+  express.raw({
+    type: "application/json",
+  }),
+  paymnetRoute
+);
 
+app.use(express.json());
 app.use("/api/auth", authRouter);
 
 app.use("/api/address", addressRouter);
@@ -45,7 +52,6 @@ app.use("/api/order", orderRoute);
 
 app.use("/api/review", ratingRoute);
 
-app.use("/api/payment", paymnetRoute);
 const PORT = process.env.PORT || 6999;
 
 app.listen(PORT, async () => {
