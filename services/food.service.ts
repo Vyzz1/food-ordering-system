@@ -14,10 +14,11 @@ import {
   desc,
   eq,
   gte,
+  ilike,
   inArray,
-  like,
   lte,
   or,
+  sql,
 } from "drizzle-orm";
 import uploadService from "./upload.service";
 class FoodService {
@@ -205,7 +206,6 @@ class FoodService {
       throw new Error("Menu item not found");
     }
 
-    // Update basic menu item fields including images
     await db
       .update(FoodTable)
       .set({
@@ -218,7 +218,6 @@ class FoodService {
       })
       .where(eq(FoodTable.id, menuItemId));
 
-    // Handle category update
     if (menuItemRequest.categoryId !== menuItem.categoryId) {
       const category = await db.query.CategoryTable.findFirst({
         where: eq(CategoryTable.id, menuItemRequest.categoryId),
@@ -365,11 +364,14 @@ class FoodService {
   async getFoodTableList(request: AdminFilterRequest) {
     const whereConditions = [];
 
+    whereConditions.push(eq(FoodTable.isActive, true));
+
     if (request.search) {
+      request.search = request.search.trim();
       whereConditions.push(
         or(
-          like(FoodTable.name, `%${request.search}%`),
-          like(FoodTable.description, `%${request.search}%`)
+          ilike(FoodTable.name, `%${request.search}%`),
+          ilike(FoodTable.description, `%${request.search}%`)
         )
       );
     }

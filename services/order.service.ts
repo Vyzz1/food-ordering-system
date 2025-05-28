@@ -6,7 +6,7 @@ import {
   eq,
   gte,
   inArray,
-  like,
+  ilike,
   lte,
   or,
 } from "drizzle-orm";
@@ -277,10 +277,10 @@ class OrderService {
           .replace(/[%_]/g, "\\$&");
         whereConditions.push(
           or(
-            like(OrderTable.fullName, `%${sanitizedKeyword}%`),
-            like(OrderTable.phoneNumber, `%${sanitizedKeyword}%`),
-            like(OrderTable.fullAddress, `%${sanitizedKeyword}%`),
-            like(OrderTable.specificAddress, `%${sanitizedKeyword}%`)
+            ilike(OrderTable.fullName, `%${sanitizedKeyword}%`),
+            ilike(OrderTable.phoneNumber, `%${sanitizedKeyword}%`),
+            ilike(OrderTable.fullAddress, `%${sanitizedKeyword}%`),
+            ilike(OrderTable.specificAddress, `%${sanitizedKeyword}%`)
           )
         );
       }
@@ -353,9 +353,9 @@ class OrderService {
         const sanitizedKeyword = request.keyword.trim();
         whereConditions.push(
           or(
-            like(OrderTable.fullName, `%${sanitizedKeyword}%`),
-            like(OrderTable.phoneNumber, `%${sanitizedKeyword}%`),
-            like(OrderTable.fullAddress, `%${sanitizedKeyword}%`)
+            ilike(OrderTable.fullName, `%${sanitizedKeyword}%`),
+            ilike(OrderTable.phoneNumber, `%${sanitizedKeyword}%`),
+            ilike(OrderTable.fullAddress, `%${sanitizedKeyword}%`)
           )
         );
       }

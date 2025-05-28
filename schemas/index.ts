@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   pgTable,
   uuid,
@@ -73,7 +73,7 @@ export const FoodTable = pgTable(
   "foods",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    name: varchar("name", { length: 255 }).notNull(),
+    name: text("name").notNull(),
     description: text("description").notNull(),
     costPrice: real("costPrice").notNull(),
     sellingPrice: real("sellingPrice").notNull(),
@@ -89,7 +89,13 @@ export const FoodTable = pgTable(
       })
       .notNull(),
   },
-  (table) => [index("food_name_index").on(table.name)]
+  (table) => [
+    index("food_name_index").on(table.name),
+    index("my_search_index").using(
+      "gin",
+      sql`to_tsvector('simple', ${table.name})`
+    ),
+  ]
 );
 
 export const OptionGroupTable = pgTable("option_groups", {

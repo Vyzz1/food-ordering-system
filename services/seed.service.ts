@@ -1,81 +1,26 @@
 import { foodService } from "./food.service";
 
 async function seedFoodData() {
-  const categories = {
-    vietnamese: "4ca58325-e1a0-406c-90f4-a4014b8cdcfe",
-    korean: "510b8879-2956-47d1-af7e-af492b8da9a7",
-    fastFood: "901234f3-396f-472b-bd50-f3a23866f329",
-    argentina: "b0bd2777-c17b-4a2f-a486-7a18dc24c1ae",
-  };
-
   const foodItems = [
     {
-      name: "Beef Bourguignon",
-      description: "Tender beef stewed in red wine with carrots and onions",
-      costPrice: 9.0,
-      sellingPrice: 13.5,
-      images: [],
-      timeEstimate: 30,
-      categoryId: "4b039af9-033d-418c-be4e-b2919aa91401",
-      optionGroups: [
-        {
-          name: "Protein Choice",
-          required: true,
-          multiple: false,
-          freeLimit: 0,
-          sequence: 1,
-          options: [
-            { optionName: "Beef", additionalPrice: 0, sequence: 1 },
-            { optionName: "Pork", additionalPrice: 0.5, sequence: 2 },
-          ],
-        },
-        {
-          name: "Side",
-          required: true,
-          multiple: false,
-          freeLimit: 0,
-          sequence: 2,
-          options: [
-            { optionName: "Mashed Potatoes", additionalPrice: 0, sequence: 1 },
-            {
-              optionName: "Roasted Vegetables",
-              additionalPrice: 0,
-              sequence: 2,
-            },
-          ],
-        },
-        {
-          name: "Garnish",
-          required: false,
-          multiple: true,
-          freeLimit: 1,
-          sequence: 3,
-          options: [
-            { optionName: "Parsley", additionalPrice: 0.3, sequence: 1 },
-            { optionName: "Thyme", additionalPrice: 0.3, sequence: 2 },
-          ],
-        },
-      ],
-    },
-    {
-      name: "Ratatouille",
+      name: "Margherita Pizza",
       description:
-        "Colorful vegetable stew with zucchini, eggplant, and tomatoes",
+        "Classic pizza with tomato sauce, mozzarella, and fresh basil",
       costPrice: 5.0,
-      sellingPrice: 8.0,
+      sellingPrice: 8.5,
       images: [],
-      timeEstimate: 18,
-      categoryId: "4b039af9-033d-418c-be4e-b2919aa91401",
+      timeEstimate: 12,
+      categoryId: "b5cedecc-6831-479a-9695-0d2b22c3d6ae",
       optionGroups: [
         {
-          name: "Serving Style",
+          name: "Crust Type",
           required: true,
           multiple: false,
           freeLimit: 0,
           sequence: 1,
           options: [
-            { optionName: "Traditional", additionalPrice: 0, sequence: 1 },
-            { optionName: "Deconstructed", additionalPrice: 0.5, sequence: 2 },
+            { optionName: "Thin Crust", additionalPrice: 0, sequence: 1 },
+            { optionName: "Thick Crust", additionalPrice: 0.5, sequence: 2 },
           ],
         },
         {
@@ -85,8 +30,129 @@ async function seedFoodData() {
           freeLimit: 1,
           sequence: 2,
           options: [
-            { optionName: "Feta Cheese", additionalPrice: 0.5, sequence: 1 },
-            { optionName: "Fresh Basil", additionalPrice: 0.3, sequence: 2 },
+            { optionName: "Extra Cheese", additionalPrice: 0.5, sequence: 1 },
+            { optionName: "Olives", additionalPrice: 0.3, sequence: 2 },
+          ],
+        },
+        {
+          name: "Size",
+          required: true,
+          multiple: false,
+          freeLimit: 0,
+          sequence: 3,
+          options: [
+            { optionName: "Medium", additionalPrice: 0, sequence: 1 },
+            { optionName: "Large", additionalPrice: 2.0, sequence: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Spaghetti Carbonara",
+      description: "Pasta with creamy egg sauce, pancetta, and parmesan",
+      costPrice: 6.0,
+      sellingPrice: 9.5,
+      images: [],
+      timeEstimate: 15,
+      categoryId: "b5cedecc-6831-479a-9695-0d2b22c3d6ae",
+      optionGroups: [
+        {
+          name: "Pasta Type",
+          required: true,
+          multiple: false,
+          freeLimit: 0,
+          sequence: 1,
+          options: [
+            { optionName: "Spaghetti", additionalPrice: 0, sequence: 1 },
+            { optionName: "Fusilli", additionalPrice: 0, sequence: 2 },
+          ],
+        },
+        {
+          name: "Add-ons",
+          required: false,
+          multiple: true,
+          freeLimit: 1,
+          sequence: 2,
+          options: [
+            { optionName: "Extra Pancetta", additionalPrice: 0.8, sequence: 1 },
+            { optionName: "Mushrooms", additionalPrice: 0.5, sequence: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Lasagna Bolognese",
+      description: "Layered pasta with meat sauce, béchamel, and mozzarella",
+      costPrice: 7.5,
+      sellingPrice: 11.0,
+      images: [],
+      timeEstimate: 20,
+      categoryId: "b5cedecc-6831-479a-9695-0d2b22c3d6ae",
+      optionGroups: [
+        {
+          name: "Protein",
+          required: true,
+          multiple: false,
+          freeLimit: 0,
+          sequence: 1,
+          options: [
+            { optionName: "Beef", additionalPrice: 0, sequence: 1 },
+            { optionName: "Vegetarian", additionalPrice: 0, sequence: 2 },
+          ],
+        },
+        {
+          name: "Portion Size",
+          required: true,
+          multiple: false,
+          freeLimit: 0,
+          sequence: 2,
+          options: [
+            { optionName: "Regular", additionalPrice: 0, sequence: 1 },
+            { optionName: "Large", additionalPrice: 2.5, sequence: 2 },
+          ],
+        },
+        {
+          name: "Side",
+          required: false,
+          multiple: false,
+          freeLimit: 0,
+          sequence: 3,
+          options: [
+            { optionName: "Garlic Bread", additionalPrice: 1.0, sequence: 1 },
+            { optionName: "Caesar Salad", additionalPrice: 1.0, sequence: 2 },
+          ],
+        },
+      ],
+    },
+    {
+      name: "Tiramisu",
+      description: "Coffee-flavored dessert with mascarpone and cocoa",
+      costPrice: 4.0,
+      sellingPrice: 6.5,
+      images: [],
+      timeEstimate: 8,
+      categoryId: "b5cedecc-6831-479a-9695-0d2b22c3d6ae",
+      optionGroups: [
+        {
+          name: "Serving Size",
+          required: true,
+          multiple: false,
+          freeLimit: 0,
+          sequence: 1,
+          options: [
+            { optionName: "Regular", additionalPrice: 0, sequence: 1 },
+            { optionName: "Large", additionalPrice: 1.5, sequence: 2 },
+          ],
+        },
+        {
+          name: "Topping",
+          required: false,
+          multiple: true,
+          freeLimit: 1,
+          sequence: 2,
+          options: [
+            { optionName: "Extra Cocoa", additionalPrice: 0.3, sequence: 1 },
+            { optionName: "Whipped Cream", additionalPrice: 0.5, sequence: 2 },
           ],
         },
       ],

@@ -132,7 +132,6 @@ class PaymentService {
   }
 
   async handleRepay(orderId: string) {
-    console.log("Handling repayment for order ID:", orderId);
     try {
       const order = await db.query.OrderTable.findFirst({
         where: (table, { eq }) => eq(table.id, orderId),

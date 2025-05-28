@@ -1,18 +1,6 @@
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  inArray,
-  isNotNull,
-  isNull,
-  like,
-  ne,
-  or,
-} from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, ilike, ne, or } from "drizzle-orm";
 import { db } from "../db";
-import { OrderTable, UserTable } from "../schemas";
+import { UserTable } from "../schemas";
 import bcrypt from "bcrypt";
 import { PagedResult } from "../models/paged-result";
 class UserService {
@@ -140,8 +128,8 @@ class UserService {
           .replace(/[%_\\]/g, "\\$&");
         whereConditions.push(
           or(
-            like(UserTable.fullName, `%${sanitizedSearch}%`),
-            like(UserTable.email, `%${sanitizedSearch}%`)
+            ilike(UserTable.fullName, `%${sanitizedSearch}%`),
+            ilike(UserTable.email, `%${sanitizedSearch}%`)
           )
         );
       }

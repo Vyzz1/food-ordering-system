@@ -72,7 +72,6 @@ class UploadService {
   }
 
   private async uploadSingleFileAsync(file: Express.Multer.File) {
-    console.log("Uploading file:", file.originalname);
     try {
       const uploadResult = await cloudinary.uploader.upload(
         `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
