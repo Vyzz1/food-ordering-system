@@ -59,7 +59,7 @@ class AuthController {
       res.cookie("refreshToken", response.refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "none",
         path: "/",
       });
 

@@ -25,6 +25,6 @@ authRouter.post("/resend-otp", authController.resendOTP as RequestHandler);
 
 authRouter.get("/refresh", authController.refreshToken);
 
-authRouter.post("/logout", authController.logout as RequestHandler);
+authRouter.get("/logout", authController.logout as RequestHandler);
 
 export default authRouter;
