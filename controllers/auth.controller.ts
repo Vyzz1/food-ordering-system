@@ -29,7 +29,7 @@ class AuthController {
           httpOnly: true,
           secure: true,
           path: "/",
-          sameSite: "strict",
+          sameSite: "none",
         });
 
         response.user.password = "";
