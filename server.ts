@@ -16,20 +16,20 @@ import ratingRoute from "./routes/rating.route";
 import paymnetRoute from "./routes/payment.route";
 import dashboardRoute from "./routes/dashboard.route";
 import path from "path";
+import compression from "compression";
 
 dotenv.config();
 
 const app = express();
+
+app.use(compression({ threshold: 1024 }));
 app.use(corsHandler);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(helmet());
-app.use(
-  "/api/payment",
 
-  paymnetRoute
-);
+app.use("/api/payment", paymnetRoute);
 
 app.use(express.json());
 app.use("/api/auth", authRouter);
